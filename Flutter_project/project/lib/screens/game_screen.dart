@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_shake_animated/flutter_shake_animated.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -8,6 +9,8 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  bool sound = true;
+  bool shake = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,12 +30,14 @@ class _GameScreenState extends State<GameScreen> {
           fit: BoxFit.fill,
         ),
         _buildReplayButton(width),
+        _buildSoundButton(width),
+        _buildPlateDice(width, height),
       ],
     );
   }
 
   Widget _buildReplayButton(double width) {
-        return Positioned(
+    return Positioned(
       top: 10,
       left: 10,
       child: GestureDetector(
@@ -52,6 +57,51 @@ class _GameScreenState extends State<GameScreen> {
           height: width * 0.2,
           width: width * 0.2,
           fit: BoxFit.fill,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSoundButton(double width) {
+    return Positioned(
+      top: 10,
+      right: 10,
+      child: GestureDetector(
+        onTap: () {
+          sound = !sound;
+        },
+        child: sound == true
+            ? Image.asset(
+                'assets/image/sound.png',
+                height: width * 0.15,
+                width: width * 0.15,
+                fit: BoxFit.fill,
+              )
+            : Image.asset(
+                'assets/image/soundno.png',
+                height: width * 0.15,
+                width: width * 0.15,
+                fit: BoxFit.fill,
+              ),
+      ),
+    );
+  }
+
+  Widget _buildPlateDice(double width, double height) {
+    return Positioned(
+      left: width / 2 - width * 0.3,
+      child: ShakeWidget(
+        duration: const Duration(milliseconds: 500),
+        shakeConstant: ShakeVerticalConstant1(),
+        autoPlay: shake,
+        child: Container(
+          alignment: Alignment.bottomCenter,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+
+            ],
+          ),
         ),
       ),
     );
