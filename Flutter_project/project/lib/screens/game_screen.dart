@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
+import 'package:project/controllers/game_ctrl.dart';
 import 'package:project/widgets/common_item.dart';
+import 'package:provider/provider.dart';
 
 import '../constants/item_list.dart';
-import '../widgets/common_coin.dart';
+import '../constants/list_bottom.dart';
 import '../widgets/common_coin_item.dart';
 
 class GameScreen extends StatefulWidget {
@@ -45,11 +49,24 @@ class _GameScreenState extends State<GameScreen> {
   bool shake = false;
   bool sound = true;
   bool click = true;
+  bool select = false;
   double h = 0;
   double d = 0;
   double turn = 0;
 
-  item_Class item_class = item_Class(0);
+  item_Class itemClass = item_Class(0);
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<GameController>().suffleDice(d1, d2, d3);
+    });
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +91,9 @@ class _GameScreenState extends State<GameScreen> {
         _buildTotalMoney(width, height),
         _buildSettime(height, width),
         _buildItem(height, width),
-        _buildBottomCoin(width, height),
+        // _buildBottomCoin(width, height),
+        // _buildTableItem(height, width),
+        _buildCoinBottom(width, height),
       ],
     );
   }
@@ -286,7 +305,7 @@ class _GameScreenState extends State<GameScreen> {
                       onTap: () {
                         // setState(() {
                         //   ClickCoins();
-                        //   if (click == true) {
+                        //   if (cklic == true) {
                         //     if (coinTurn <= totalMon) {
                         //       item_class.tigerList.add(item_Class(coinTurn));
                         //       ++turnCoins;
@@ -318,7 +337,7 @@ class _GameScreenState extends State<GameScreen> {
                                 itemCount: turnCoins,
                                 reverse: true,
                                 itemBuilder: (BuildContext context, int index) {
-                                  var data = item_class.tigerList[index];
+                                  var data = itemClass.tigerList[index];
                                   return index == 0
                                       ? const Text('')
                                       : CommonCoinItem(item: data);
@@ -365,7 +384,7 @@ class _GameScreenState extends State<GameScreen> {
                                 itemCount: turnKlos,
                                 reverse: true,
                                 itemBuilder: (BuildContext context, int index) {
-                                  var data = item_class.klosList[index];
+                                  var data = itemClass.klosList[index];
                                   return index == 0
                                       ? const Text('')
                                       : CommonCoinItem(item: data);
@@ -411,7 +430,7 @@ class _GameScreenState extends State<GameScreen> {
                                 itemCount: turnChecken,
                                 reverse: true,
                                 itemBuilder: (BuildContext context, int index) {
-                                  var data = item_class.chickenList[index];
+                                  var data = itemClass.chickenList[index];
                                   return index == 0
                                       ? const Text('')
                                       : CommonCoinItem(item: data);
@@ -437,7 +456,7 @@ class _GameScreenState extends State<GameScreen> {
                             if (click == true) {
                               if (coinTurn <= totalMon) {
                                 ++turnFish;
-                                item_class.fishList.add(item_Class(coinTurn));
+                                itemClass.fishList.add(item_Class(coinTurn));
                                 fish += coinTurn;
                                 totalMon -= coinTurn;
                               }
@@ -467,7 +486,7 @@ class _GameScreenState extends State<GameScreen> {
                                   reverse: true,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    var data = item_class.fishList[index];
+                                    var data = itemClass.fishList[index];
                                     return index == 0
                                         ? const Text('')
                                         : CommonCoinItem(item: data);
@@ -484,7 +503,7 @@ class _GameScreenState extends State<GameScreen> {
                             if (click == true) {
                               if (coinTurn <= totalMon) {
                                 ++turnCrab;
-                                item_class.crapList.add(item_Class(coinTurn));
+                                itemClass.crapList.add(item_Class(coinTurn));
                                 crab += coinTurn;
                                 totalMon -= coinTurn;
                               }
@@ -514,7 +533,7 @@ class _GameScreenState extends State<GameScreen> {
                                   reverse: true,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    var data = item_class.crapList[index];
+                                    var data = itemClass.crapList[index];
                                     return index == 0
                                         ? const Text('')
                                         : CommonCoinItem(item: data);
@@ -531,8 +550,7 @@ class _GameScreenState extends State<GameScreen> {
                             if (click == true) {
                               if (coinTurn <= totalMon) {
                                 ++turnLobster;
-                                item_class.lobsterList
-                                    .add(item_Class(coinTurn));
+                                itemClass.lobsterList.add(item_Class(coinTurn));
                                 lobster += coinTurn;
                                 totalMon -= coinTurn;
                               }
@@ -562,7 +580,7 @@ class _GameScreenState extends State<GameScreen> {
                                   reverse: true,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    var data = item_class.lobsterList[index];
+                                    var data = itemClass.lobsterList[index];
                                     return index == 0
                                         ? const Text('')
                                         : CommonCoinItem(item: data);
@@ -582,89 +600,53 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildBottomCoin(double width, double height) {
+  Widget _buildTableItem(double height, double width) {
+    return Positioned(
+      bottom: height * 0.17,
+      right: 1,
+      child: Container(
+        padding: const EdgeInsets.all(7),
+        margin: EdgeInsets.only(left: width * 0.03, right: width * 0.03),
+        child: Container(
+          padding: const EdgeInsets.all(7),
+          width: width - width * 0.06,
+          decoration:
+              BoxDecoration(border: Border.all(width: 5, color: Colors.yellow)),
+          // child: GridView.builder(gridDelegate: gridDelegate, itemBuilder: itemBuilder),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCoinBottom(double width, double height) {
     return Positioned(
       bottom: height * 0.03,
       left: width * 0.025,
-      child: Container(
-        height: width * 0.18,
-        width: width * 0.95,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GestureDetector(
-              onTap: () {
-                // setState(() {
-                //   ClickCoin();
-                //   coinTurn = 1;
-                // });
-              },
-              child: Container(
-                width: width * 0.18,
-                decoration: const BoxDecoration(
-                    color: Colors.blue, shape: BoxShape.circle),
-                child: CommonCoinss(value: 1, colors: coinTurn == 1 ? 1 : 0),
-              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(listBottom.length, (index) {
+          var data = listBottom[index];
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                listBottom[index]['select'] = !listBottom[index]['select'];
+              });
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.01),
+              width: width * 0.18,
+              decoration: BoxDecoration(
+                  color: data['select']
+                      ? Colors.white.withOpacity(0)
+                      : Colors.black.withOpacity(0.45),
+                  border: Border.all(
+                      width: 2,
+                      color: data['select'] ? Colors.blue : Colors.white),
+                  shape: BoxShape.circle),
+              child: Image.asset(listBottom[index]['img']),
             ),
-            GestureDetector(
-              onTap: () {
-                // setState(() {
-                //   ClickCoin();
-                //   coinTurn = 5;
-                // });
-              },
-              child: Container(
-                width: width * 0.18,
-                decoration: const BoxDecoration(
-                    color: Colors.blue, shape: BoxShape.circle),
-                child: CommonCoinss(value: 5, colors: coinTurn == 5 ? 1 : 0),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                // setState(() {
-                //   ClickCoin();
-                //   coinTurn = 10;
-                // });
-              },
-              child: Container(
-                width: width * 0.18,
-                decoration: const BoxDecoration(
-                    color: Colors.blue, shape: BoxShape.circle),
-                child: CommonCoinss(value: 10, colors: coinTurn == 10 ? 1 : 0),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                // setState(() {
-                //   ClickCoin();
-                //   coinTurn = 50;
-                // });
-              },
-              child: Container(
-                width: width * 0.18,
-                decoration: const BoxDecoration(
-                    color: Colors.blue, shape: BoxShape.circle),
-                child: CommonCoinss(value: 50, colors: coinTurn == 50 ? 1 : 0),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                // setState(() {
-                //   ClickCoin();
-                //   coinTurn = 100;
-                // });
-              },
-              child: Container(
-                width: width * 0.18,
-                decoration: const BoxDecoration(
-                    color: Colors.blue, shape: BoxShape.circle),
-                child:
-                    CommonCoinss(value: 100, colors: coinTurn == 100 ? 1 : 0),
-              ),
-            ),
-          ],
-        ),
+          );
+        }),
       ),
     );
   }
